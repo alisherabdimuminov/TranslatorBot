@@ -70,12 +70,12 @@ async def delete_admin(call: types.CallbackQuery):
 
 @dp.callback_query_handler(text="add_channel")
 async def add_admin(call: types.CallbackQuery):
-    await call.message.answer("Botga quyidagi buyruqni yuboring ```text @add_channel <admin_telegram_id>```", parse_mode="markdown")
+    await call.message.answer("Botga quyidagi buyruqni yuboring ```text @add_channel @channel```", parse_mode="markdown")
 
 
 @dp.callback_query_handler(text="delete_channel")
 async def delete_admin(call: types.CallbackQuery):
-    await call.message.answer("Botga quyidagi buyruqni yuboring ```text @del_channel <admin_telegram_id>```", parse_mode="markdown")
+    await call.message.answer("Botga quyidagi buyruqni yuboring ```text @del_channel @channel```", parse_mode="markdown")
 
 @dp.callback_query_handler(text="send_message")
 async def add_admin(call: types.CallbackQuery):
@@ -85,7 +85,7 @@ async def add_admin(call: types.CallbackQuery):
 async def list_admins(call: types.CallbackQuery):
     text = ""
     for i in db.get_admins():
-        text += f"{i[0]}\n"
+        text += f"{code(str(i[0]))}\n"
     await call.message.answer(text)
 
 @dp.callback_query_handler(text="list_channels")
