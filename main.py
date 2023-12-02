@@ -10,7 +10,7 @@ from keyboards import (
 )
 
 
-bot = Bot(token="5514911055:AAFlQ27WuOpM0TIUnAXtjCYIWcyGZA-uJZc")
+bot = Bot(token="6045023367:AAGlf55XrAHwKj8iLS8dpkg9p3tNdWdM1lw")
 dp  = Dispatcher(bot=bot)
 db  = DataBase()
 
@@ -49,12 +49,6 @@ async def start_command_handler(message: types.Message):
         for channel in db.get_channels():
             channels_inline_button.add(types.InlineKeyboardButton(text=f"{channel[0]}", url=f"t.me/{channel[0][1::]}"))
         await message.answer("Xurmatli foydalanuvchi botimizdan foydalanish uchun quyidagi kannallarimizga obuna bo'lganligingizni tekshirib ko'ring.", reply_markup=channels_inline_button)
-    # print(message.message_id)
-    # await bot.forward_message(
-    #     chat_id="@alisher_cpp",
-    #     from_chat_id="2020619873",
-    #     message_id=message.message_id,
-    # )
 
 @dp.message_handler(commands=['admin'])
 async def admin_panel_handler(message: types.Message):
@@ -139,11 +133,14 @@ async def text_handler(message: types.Message):
                             await message.answer("Bunday kanal mavjud emas")
                     else:
                         for user in db.get_users():
-                            await bot.copy_message(
-                                chat_id=user[0],
-                                from_chat_id=message.from_user.id,
-                                message_id=message.message_id,
-                            )
+                            try:
+                                await bot.copy_message(
+                                    chat_id=user[0],
+                                    from_chat_id=message.from_user.id,
+                                    message_id=message.message_id,
+                                )
+                            except:
+                                pass
                 else:
                     for user in db.get_users():
                         await bot.copy_message(
