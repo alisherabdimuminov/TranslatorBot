@@ -10,7 +10,8 @@ from keyboards import (
 )
 
 
-bot = Bot(token="6045023367:AAGlf55XrAHwKj8iLS8dpkg9p3tNdWdM1lw")
+# bot = Bot(token="6045023367:AAGlf55XrAHwKj8iLS8dpkg9p3tNdWdM1lw")
+bot = Bot(token="5514911055:AAFlQ27WuOpM0TIUnAXtjCYIWcyGZA-uJZc")
 dp  = Dispatcher(bot=bot)
 db  = DataBase()
 
@@ -30,6 +31,7 @@ async def check_all_channels(user):
     for channel in db.get_channels():
         checker = await check_one_channel(channel=channel[0], user=user)
         if checker == "true":
+            print("passd")
             continue
         else:
             return False
@@ -43,12 +45,17 @@ async def start_command_handler(message: types.Message):
         db.add_user(message.from_user.id, False, now.strftime("%d/%m/%Y"))
     if await check_all_channels(user=message.from_user.id):
         db.update_user(message.from_user.id)
-        await message.answer("Salom")
+        await message.answer("""👋Salom, Men tarjimon botman!
+
+- Men sizga O’zbek va Ingliz tilida matnlarni tarjima qilishda yordam beraman.
+
+🔎Tarjima qilishingiz kerak bo’lgan matnni menga yuboring""")
     else:
         channels_inline_button = types.InlineKeyboardMarkup(row_width=1)
         for channel in db.get_channels():
             channels_inline_button.add(types.InlineKeyboardButton(text=f"{channel[0]}", url=f"t.me/{channel[0][1::]}"))
-        await message.answer("Xurmatli foydalanuvchi botimizdan foydalanish uchun quyidagi kannallarimizga obuna bo'lganligingizni tekshirib ko'ring.", reply_markup=channels_inline_button)
+        channels_inline_button.add(types.InlineKeyboardButton(text="Tekshirish", callback_data="check"))
+        await message.answer("⚠️ Botdan foydalanish uchun, quyidagi kanallarga obuna bo'ling:", reply_markup=channels_inline_button)
 
 @dp.message_handler(commands=['admin'])
 async def admin_panel_handler(message: types.Message):
@@ -80,6 +87,18 @@ async def delete_admin(call: types.CallbackQuery):
 @dp.callback_query_handler(text="send_message")
 async def add_admin(call: types.CallbackQuery):
     await call.message.answer("Xabarni kiriting", parse_mode="markdown")
+
+@dp.callback_query_handler(text="check")
+async def check_(call: types.CallbackQuery):
+    if await check_all_channels(call.message.chat.id):
+        await call.message.edit_text("🔎Tarjima qilishingiz kerak bo’lgan matnni menga yuboring.")
+    else:
+        channels_inline_button = types.InlineKeyboardMarkup(row_width=1)
+        for channel in db.get_channels():
+            channels_inline_button.add(types.InlineKeyboardButton(text=f"{channel[0]}", url=f"t.me/{channel[0][1::]}"))
+        channels_inline_button.add(types.InlineKeyboardButton(text="Tekshirish", callback_data="check"))
+        await call.message.edit_text("⚠️ Botdan foydalanish uchun, quyidagi kanallarga obuna bo'ling:")
+        await call.message.edit_reply_markup(channels_inline_button)
 
 @dp.callback_query_handler(text="list_admins")
 async def list_admins(call: types.CallbackQuery):
@@ -177,7 +196,8 @@ async def text_handler(message: types.Message):
             channels_inline_button = types.InlineKeyboardMarkup(row_width=1)
             for channel in db.get_channels():
                 channels_inline_button.add(types.InlineKeyboardButton(text=f"{channel[0]}", url=f"t.me/{channel[0][1::]}"))
-            await message.answer("Xurmatli foydalanuvchi botimizdan foydalanish uchun quyidagi kannallarimizga obuna bo'lganligingizni tekshirib ko'ring.", reply_markup=channels_inline_button)
+            channels_inline_button.add(types.InlineKeyboardButton(text="Tekshirish", callback_data="check"))
+            await message.answer("⚠️ Botdan foydalanish uchun, quyidagi kanallarga obuna bo'ling:", reply_markup=channels_inline_button)
 
 
 executor.start_polling(dispatcher=dp, skip_updates=True)
