@@ -95,75 +95,76 @@ Adminlar: {len(list(db.get_admins()))}
 
 @dp.message_handler(content_types=types.ContentType.ANY)
 async def text_handler(message: types.Message):
-    if await check_all_channels(user=message.from_user.id):
-        db.update_user(message.from_user.id)
-        try:
-            is_admin = db.get_admin(message.from_user.id)
-            if is_admin:
-                if message.text:
-                    if message.text.split()[0] == "@add_admin":
-                        r = db.add_admin(message.text.split()[1])
-                        if r:
-                            await message.answer("Admin qo'shildi!")
-                        else:
-                            await message.answer("Bu admin mavjud")
-                    elif message.text.split()[0] == "@del_admin":
-                        r = db.delete_admin(message.text.split()[1])
-                        if r:
-                            await message.answer("Admin o'chirildi!")
-                        else:
-                            await message.answer("Bunday admin mavjud emas")
-                    elif message.text.split()[0] == "@add_channel":
-                        try:
-                            channel = message.text.split()[1] if "@" in message.text.split()[1] else "@" + message.text.split()[1]
-                            await bot.get_chat_administrators(channel)
-                            r = db.add_channel(channel)
+    if message.chat.type == "private":
+        if await check_all_channels(user=message.from_user.id):
+            db.update_user(message.from_user.id)
+            try:
+                is_admin = db.get_admin(message.from_user.id)
+                if is_admin:
+                    if message.text:
+                        if message.text.split()[0] == "@add_admin":
+                            r = db.add_admin(message.text.split()[1])
                             if r:
-                                await message.answer("Kanal qo'shildi")
+                                await message.answer("Admin qo'shildi!")
                             else:
-                                await message.answer("Bu kanal mavjud")
-                        except Exception as e:
-                            print(e)
-                            await message.answer("Bu kanal mavjud emas yoki bot bu kanal admini emas.")
-                    elif message.text.split()[0] == "@del_channel":
-                        r = db.delete_channel(message.text.split()[1])
-                        if r:
-                            await message.answer("Kanal o'chirildi")
+                                await message.answer("Bu admin mavjud")
+                        elif message.text.split()[0] == "@del_admin":
+                            r = db.delete_admin(message.text.split()[1])
+                            if r:
+                                await message.answer("Admin o'chirildi!")
+                            else:
+                                await message.answer("Bunday admin mavjud emas")
+                        elif message.text.split()[0] == "@add_channel":
+                            try:
+                                channel = message.text.split()[1] if "@" in message.text.split()[1] else "@" + message.text.split()[1]
+                                await bot.get_chat_administrators(channel)
+                                r = db.add_channel(channel)
+                                if r:
+                                    await message.answer("Kanal qo'shildi")
+                                else:
+                                    await message.answer("Bu kanal mavjud")
+                            except Exception as e:
+                                print(e)
+                                await message.answer("Bu kanal mavjud emas yoki bot bu kanal admini emas.")
+                        elif message.text.split()[0] == "@del_channel":
+                            r = db.delete_channel(message.text.split()[1])
+                            if r:
+                                await message.answer("Kanal o'chirildi")
+                            else:
+                                await message.answer("Bunday kanal mavjud emas")
                         else:
-                            await message.answer("Bunday kanal mavjud emas")
+                            for user in db.get_users():
+                                try:
+                                    await bot.copy_message(
+                                        chat_id=user[0],
+                                        from_chat_id=message.from_user.id,
+                                        message_id=message.message_id,
+                                    )
+                                except:
+                                    pass
                     else:
                         for user in db.get_users():
-                            try:
-                                await bot.copy_message(
-                                    chat_id=user[0],
-                                    from_chat_id=message.from_user.id,
-                                    message_id=message.message_id,
-                                )
-                            except:
-                                pass
+                            await bot.copy_message(
+                                chat_id=user[0],
+                                from_chat_id=message.from_user.id,
+                                message_id=message.message_id,
+                            )
                 else:
-                    for user in db.get_users():
-                        await bot.copy_message(
-                            chat_id=user[0],
-                            from_chat_id=message.from_user.id,
-                            message_id=message.message_id,
-                        )
-            else:
-                trans = translate(message.text)
-                en = trans["en"]
-                uz = trans["uz"]
-                await message.answer(f"""
-🇬🇧 {code(en)}
+                    trans = translate(message.text)
+                    en = trans["en"]
+                    uz = trans["uz"]
+                    await message.answer(f"""
+    🇬🇧 {code(en)}
 
-🇺🇿 {code(uz)}
-            """, parse_mode="markdown")
-        except Exception as e:
-            print(e)
-    else:
-        channels_inline_button = types.InlineKeyboardMarkup(row_width=1)
-        for channel in db.get_channels():
-            channels_inline_button.add(types.InlineKeyboardButton(text=f"{channel[0]}", url=f"t.me/{channel[0][1::]}"))
-        await message.answer("Xurmatli foydalanuvchi botimizdan foydalanish uchun quyidagi kannallarimizga obuna bo'lganligingizni tekshirib ko'ring.", reply_markup=channels_inline_button)
+    🇺🇿 {code(uz)}
+                """, parse_mode="markdown")
+            except Exception as e:
+                print(e)
+        else:
+            channels_inline_button = types.InlineKeyboardMarkup(row_width=1)
+            for channel in db.get_channels():
+                channels_inline_button.add(types.InlineKeyboardButton(text=f"{channel[0]}", url=f"t.me/{channel[0][1::]}"))
+            await message.answer("Xurmatli foydalanuvchi botimizdan foydalanish uchun quyidagi kannallarimizga obuna bo'lganligingizni tekshirib ko'ring.", reply_markup=channels_inline_button)
 
 
 executor.start_polling(dispatcher=dp, skip_updates=True)
