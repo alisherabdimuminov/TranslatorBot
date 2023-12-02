@@ -81,6 +81,19 @@ async def delete_admin(call: types.CallbackQuery):
 async def add_admin(call: types.CallbackQuery):
     await call.message.answer("Xabarni kiriting", parse_mode="markdown")
 
+@dp.callback_query_handler(text="list_admins")
+async def list_admins(call: types.CallbackQuery):
+    text = ""
+    for i in db.get_admins():
+        text += f"{i[0]}\n"
+    await call.message.answer(text)
+
+@dp.callback_query_handler(text="list_channels")
+async def list_admins(call: types.CallbackQuery):
+    text = ""
+    for i in db.get_channels():
+        text += f"{i[0]}\n"
+    await call.message.answer(text)
 
 @dp.callback_query_handler(text="statistics")
 async def delete_admin(call: types.CallbackQuery):
