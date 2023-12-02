@@ -1,5 +1,5 @@
 import sqlite3
-
+from datetime import datetime
 
 class DataBase:
     def __init__(self, name: str = "main.db"):
@@ -43,7 +43,15 @@ class DataBase:
             return list(self.cursor.execute(query))
         except Exception as e:
             return []
-    
+        
+    def get_now_users(self):
+        try:
+            now = datetime.now().strftime("%d/%m/%Y")
+            query = f"""SELECT FROM users WHERE joined_date="{now}" """
+            return list(self.cursor.execute(query))
+        except:
+            return []
+
     def get_all_users(self):
         try:
             query = f"""SELECT * FROM users"""

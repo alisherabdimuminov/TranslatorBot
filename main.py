@@ -51,11 +51,7 @@ async def start_command_handler(message: types.Message):
 
 🔎Tarjima qilishingiz kerak bo’lgan matnni menga yuboring""")
     else:
-        channels_inline_button = types.InlineKeyboardMarkup(row_width=1)
-        for channel in db.get_channels():
-            channels_inline_button.add(types.InlineKeyboardButton(text=f"{channel[0]}", url=f"t.me/{channel[0][1::]}"))
-        channels_inline_button.add(types.InlineKeyboardButton(text="Tekshirish", callback_data="check"))
-        await message.answer("⚠️ Botdan foydalanish uchun, quyidagi kanallarga obuna bo'ling:", reply_markup=channels_inline_button)
+        await message.answer("""👋Salom, Men tarjimon botman!\n\n- Men sizga O’zbek va Ingliz tilida matnlarni tarjima qilishda yordam beraman.\n\n🔎Tarjima qilishingiz kerak bo’lgan matnni menga yuboring""")
 
 @dp.message_handler(commands=['admin'])
 async def admin_panel_handler(message: types.Message):
@@ -119,6 +115,7 @@ async def delete_admin(call: types.CallbackQuery):
     await call.message.answer(f"""
 Foydalanuvchilar soni: {len(db.get_all_users())}
 Aktiv foydalanuvchilar: {len(list(db.get_users()))}
+Kunlik foydalanuvchilar: {len(db.get_now_users())}
 Kanallar: {len(list(db.get_channels()))}
 Adminlar: {len(list(db.get_admins()))}
 """, parse_mode="markdown")
